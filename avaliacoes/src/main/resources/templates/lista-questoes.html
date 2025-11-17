@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Questões Criadas</title>
+</head>
+<body>
+
+    <h2>Questões Existentes</h2>
+    
+    <table border="1" style="width: 80%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="padding: 10px;">ID</th>
+                <th style="padding: 10px;">Conteúdo da Questão</th>
+                <th style="padding: 10px;">Tema</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="questao : ${questoes}">
+                <td th:text="${questao.id}" style="padding: 8px;">1</td>
+                <td th:text="${questao.conteudo}" style="padding: 8px;">Qual a capital do Brasil?</td>
+                <td th:text="${questao.tema.nome}" style="padding: 8px;">Geografia</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <p style="margin-top: 30px;">
+        <a th:href="@{/dashboard}">Voltar ao Dashboard</a>
+    </p>
+
+</body>
+</html>

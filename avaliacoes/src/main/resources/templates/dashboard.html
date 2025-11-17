@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+</head>
+<body>
+
+    <h2 th:if="${mensagemSucesso}" th:text="${mensagemSucesso}" style="color: blue;"></h2>
+    <h2>Dashboard Principal</h2>
+    <p>Bem-vindo ao sistema de Avaliações. Escolha uma opção:</p>
+    
+    <div style="margin-top: 20px;">
+        <a th:href="@{/questoes/nova}">
+            <button style="padding: 10px 15px; margin-right: 15px;">Criar Nova Questão</button>
+        </a>
+        
+        <a th:href="@{/questoes/lista}">
+            <button style="padding: 10px 15px;">Visualizar Questões Existentes</button>
+        </a>
+    </div>
+
+    <p style="margin-top: 40px;">
+        <a th:href="@{/login}">Sair (Logout)</a>
+    </p>
+
+</body>
+</html>

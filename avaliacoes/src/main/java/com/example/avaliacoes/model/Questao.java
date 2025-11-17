@@ -14,7 +14,7 @@ public class Questao {
     private String conteudo;
 
     // Relacionamento N:1
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tema_id")
     private Tema tema;
 

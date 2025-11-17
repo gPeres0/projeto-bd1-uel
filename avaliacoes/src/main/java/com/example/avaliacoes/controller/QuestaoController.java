@@ -1,48 +1,67 @@
 package com.example.avaliacoes.controller;
 
 import com.example.avaliacoes.model.Questao;
-import com.example.avaliacoes.repository.QuestaoRepository;
+import com.example.avaliacoes.model.Tema;
+import com.example.avaliacoes.service.QuestaoService;
+import com.example.avaliacoes.service.TemaService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/questoes")
 public class QuestaoController {
 
-    private final QuestaoRepository repository;
+    private final QuestaoService questaoService;
+    private final TemaService temaService;
 
-    public QuestaoController(QuestaoRepository repository) {
-        this.repository = repository;
+    @Autowired
+    public QuestaoController(QuestaoService questaoService, TemaService temaService) {
+        this.questaoService = questaoService;
+        this.temaService = temaService;
     }
 
-    @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("questoes", repository.findAll());
-        return "questoes-list";
-    }
-
+    /*
+     * Mapeia para a URL /questoes/nova (GET)
+     * Exibe o formulário de cadastro
+     */
     @GetMapping("/nova")
-    public String nova(Model model) {
+    public String exibirFormulario(Model model) {
         model.addAttribute("questao", new Questao());
-        return "questoes-form";
+        model.addAttribute("temas", temaService.encontrarTodos());
+        model.addAttribute("novoTema", new Tema());
+        return "cadastro-questao";
     }
 
-    @PostMapping
-    public String salvar(Questao questao) {
-        repository.save(questao);
-        return "redirect:/questoes";
+    /*
+     * Mapeia para a URL /questoes/nova (POST)
+     * Recebe e salva a nova Questao
+     */
+    @PostMapping("/nova")
+    public String salvarQuestao(@ModelAttribute("questao") Questao questao, String novoTemaNome) {
+        if (novoTemaNome != null && !novoTemaNome.isBlank()) {
+            Tema novoTema = temaService.salvarTema(novoTemaNome.trim());
+            questao.setTema(novoTema); // Associa o novo tema à questão
+        
+        } else if (questao.getTema() != null && questao.getTema().getId() != null) {
+            // 2. Lógica para usar um Tema EXISTENTE, se um ID foi selecionado.
+            // O Spring já deve ter anexado o Tema pelo ID, mas garantimos
+            Tema temaExistente = temaService.buscarPorId(questao.getTema().getId());
+            questao.setTema(temaExistente);
+        }
+
+        questaoService.salvarQuestao(questao);
+        return "redirect:/questoes/nova?sucesso";
     }
 
-    @GetMapping("/editar/{id}")
-    public String editar(@PathVariable Long id, Model model) {
-        model.addAttribute("questao", repository.findById(id).orElse(null));
-        return "questoes-form";
-    }
-
-    @GetMapping("/excluir/{id}")
-    public String excluir(@PathVariable Long id) {
-        repository.deleteById(id);
-        return "redirect:/questoes";
+    @GetMapping("/lista")
+    public String listarQuestoes(Model model) {
+        // Lógica para buscar e exibir todas as questões.
+        model.addAttribute("questoes", questaoService.encontrarTodas());
+        return "lista-questoes";
     }
 }
