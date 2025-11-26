@@ -1,7 +1,9 @@
--- TEMA
-CREATE TABLE IF NOT EXISTS tema (
+-- USUARIO
+CREATE TABLE IF NOT EXISTS usuario (
     id SERIAL PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL
+    nome VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    senha VARCHAR(255) NOT NULL
 );
 
 -- QUESTAO
@@ -11,12 +13,10 @@ CREATE TABLE IF NOT EXISTS questao (
     tema_id INTEGER REFERENCES tema(id)
 );
 
--- RESPOSTA
-CREATE TABLE IF NOT EXISTS resposta (
+-- TEMA
+CREATE TABLE IF NOT EXISTS tema (
     id SERIAL PRIMARY KEY,
-    texto VARCHAR(255) NOT NULL,
-    e_correta BOOLEAN DEFAULT FALSE,
-    questao_id INTEGER REFERENCES questao(id) ON DELETE CASCADE
+    nome VARCHAR(255) NOT NULL
 );
 
 -- QUESTIONARIO
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS questionario (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
     nota INTEGER,
-    id_user INTEGER REFERENCES usuario(id) -- Chave estrangeira para Usuario
+    id_user INTEGER REFERENCES usuario(id)
 );
 
 -- QUESTIONARIO <-> TEMA
@@ -41,3 +41,19 @@ CREATE TABLE IF NOT EXISTS questionario_questao (
     PRIMARY KEY (questionario_id, questao_id)
 );
 
+-- RESPOSTA
+CREATE TABLE IF NOT EXISTS resposta (
+    id SERIAL PRIMARY KEY,
+    texto VARCHAR(255) NOT NULL,
+    e_correta BOOLEAN DEFAULT FALSE,
+    questao_id INTEGER REFERENCES questao(id) ON DELETE CASCADE
+);
+
+-- RESULTADO
+CREATE TABLE IF NOT EXISTS resultado (
+    id SERIAL PRIMARY KEY,
+    nota DOUBLE PRECISION,
+    data TIMESTAMP,
+    id_user INTEGER REFERENCES usuario(id),
+    id_questionario INTEGER REFERENCES questionario(id)
+);
