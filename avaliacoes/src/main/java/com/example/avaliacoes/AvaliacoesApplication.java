@@ -1,7 +1,12 @@
 package com.example.avaliacoes;
 
-import com.example.avaliacoes.model.Tema;
+// import com.example.avaliacoes.model.Tema;
 import com.example.avaliacoes.repository.TemaRepository;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,16 +22,18 @@ public class AvaliacoesApplication {
     @Bean
     public CommandLineRunner initializationRunner(TemaRepository temaRepository) {
         return args -> {
-            // Verifica se o tema 'Geral' já existe para evitar duplicidade
-            if (temaRepository.count() == 0) {
-                System.out.println("Criando Tema inicial...");
-                
-                Tema tema = new Tema();
-                // O nome do Tema é o único atributo simples que definimos na Entidade.
-                tema.setNome("Geral"); 
-                
-                temaRepository.save(tema);
-                System.out.println("Tema 'Geral' salvo com ID: " + tema.getId());
+            String url = "jdbc:postgresql://localhost:5432/avaliacoes_db";
+            String user = "postgres";
+            String password = "123456";
+                    
+            try {
+                // Optional: for older drivers, you might need Class.forName("org.postgresql.Driver"); 
+                // Modern JDBC 4.0+ drivers load automatically.
+                Connection con = DriverManager.getConnection(url, user, password);
+                // Connection successful, proceed with database operations...
+            } catch (SQLException e) {
+                e.printStackTrace();
+                // Handle connection errors (e.g., wrong port, refused connection)
             }
         };
     }

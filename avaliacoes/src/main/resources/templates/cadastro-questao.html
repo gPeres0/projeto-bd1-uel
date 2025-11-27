@@ -14,11 +14,39 @@
 
     <form th:action="@{/questoes/nova}" th:object="${questao}" method="post">
         
+        <hr/>
+
+        <h3>Conteúdo da Questão</h3>
+        <div>
+            <label for="conteudo">Conteúdo da Questão:</label><br>
+            <textarea id="conteudo" th:field="*{conteudo}" rows="5" cols="50" required></textarea>
+        </div>
+
+        <h3 style="margin-top: 25px;">Opções de Resposta (Marque a Correta)</h3>
+        
+        <div th:each="resposta, stat : *{respostas}" style="margin-bottom: 10px;">
+            <label th:for="${'texto' + stat.index}">Resposta [[${stat.count}]]:</label>
+            
+            <input type="text" 
+                   th:field="*{respostas[__${stat.index}__].texto}" 
+                   th:id="${'texto' + stat.index}"
+                   style="width: 50%;"
+                   placeholder="Digite o texto da opção"
+                   required />
+            
+            <input type="checkbox" 
+                   th:field="*{respostas[__${stat.index}__].eCorreta}" 
+                   th:id="${'correta' + stat.index}" />
+            <label th:for="${'correta' + stat.index}">Correta</label>
+        </div>
+
+        <hr/>
+
         <h3>Definição de Tema</h3>
         
         <div style="margin-bottom: 10px;">
             <label for="temaExistente">Tema Existente:</label><br>
-            <select id="temaExistente" th:field="*{tema}">
+            <select id="temaExistente" th:field="*{tema.id}">
                 <option value="">-- Selecione um Tema --</option>
                 <option th:each="t : ${temas}" 
                         th:value="${t.id}" 
@@ -34,13 +62,6 @@
             <input type="text" id="novoTemaNome" name="novoTemaNome" placeholder="Digite o nome do novo tema" />
         </div>
         
-        <hr/>
-
-        <h3>Conteúdo da Questão</h3>
-        <div>
-            <label for="conteudo">Conteúdo da Questão:</label><br>
-            <textarea id="conteudo" th:field="*{conteudo}" rows="5" cols="50" required></textarea>
-        </div>
         
         <button type="submit" style="margin-top: 15px;">Salvar Questão</button>
     </form>

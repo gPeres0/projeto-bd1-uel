@@ -1,6 +1,7 @@
 package com.example.avaliacoes.controller;
 
 import com.example.avaliacoes.model.Questao;
+import com.example.avaliacoes.model.Resposta;
 import com.example.avaliacoes.model.Tema;
 import com.example.avaliacoes.service.QuestaoService;
 import com.example.avaliacoes.service.TemaService;
@@ -31,7 +32,12 @@ public class QuestaoController {
      */
     @GetMapping("/nova")
     public String exibirFormulario(Model model) {
-        model.addAttribute("questao", new Questao());
+        Questao questao = new Questao();
+        for (int i = 0; i < 4; i++) {
+            questao.getRespostas().add(new Resposta());
+        }
+        model.addAttribute("questao", questao);
+        
         model.addAttribute("temas", temaService.encontrarTodos());
         model.addAttribute("novoTema", new Tema());
         return "cadastro-questao";
