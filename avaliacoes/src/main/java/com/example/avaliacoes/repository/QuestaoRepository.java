@@ -42,6 +42,18 @@ public class QuestaoRepository {
         return jdbc.query(sql, questaoRowMapper);
     }
 
+    public List<Questao> findByTemaId(Long temaId) {
+        // Busca apenas os dados da questão, sem as respostas
+        String sql = "SELECT * FROM questao WHERE tema_id = ?";
+        
+        return jdbc.query(sql, (rs, rowNum) -> {
+            Questao q = new Questao();
+            q.setId(rs.getLong("id"));
+            q.setConteudo(rs.getString("conteudo"));
+            return q;
+        }, temaId);
+    }
+
     @Transactional // Garante que Questão e Respostas sejam salvas juntas ou falhem juntas
     public void save(Questao questao) {
         Long questaoId = questao.getId();

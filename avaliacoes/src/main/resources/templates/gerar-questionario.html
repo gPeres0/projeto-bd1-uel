@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gerador de Questionários</title>
+    <style>
+        .aviso { background-color: #fff3cd; color: #856404; padding: 10px; border: 1px solid #ffeeba; margin-bottom: 15px; }
+        .questao-box { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; background-color: #f9f9f9; }
+        .resposta-lista { list-style-type: none; padding-left: 0; }
+        .resposta-lista li { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <h2>Gerador Automático de Questionário</h2>
+    <a th:href="@{/dashboard}">Voltar ao Dashboard</a>
+    <hr/>
+
+    <form th:action="@{/questionarios/preview}" method="post">
+        
+        <div style="margin-bottom: 15px;">
+            <label for="nome">Nome do Questionário:</label><br>
+            <input type="text" id="nome" name="nome" required 
+                   th:value="${preview != null ? preview.nome : ''}" 
+                   placeholder="Ex: Prova de Matemática I">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="tema">Selecione o Tema:</label><br>
+            <select id="tema" name="temaId" required>
+                <option value="">-- Selecione --</option>
+                <option th:each="t : ${temas}" 
+                        th:value="${t.id}" 
+                        th:text="${t.nome}"
+                        th:selected="${temaSelecionadoId == t.id}">
+                </option>
+            </select>
+        </div>
+
+        <button type="submit">
+            <span th:if="${modoPreview}">🔄 Gerar Novamente (Outras Questões)</span>
+            <span th:unless="${modoPreview}">🎲 Gerar Questionário</span>
+        </button>
+    </form>
+
+    <div th:if="${modoPreview}" style="margin-top: 40px;">
+        
+        <h3>Pré-visualização do Questionário</h3>
+
+        <div th:if="${avisoQuantidade}" class="aviso">
+            <span th:text="${avisoQuantidade}"></span>
+        </div>
+
+        <div th:each="q, stat : ${preview.questoes}" class="questao-box">
+            <strong th:text="${stat.count} + '. ' + ${q.conteudo}"></strong>
+            
+            <ul class="resposta-lista">
+                <li th:each="r : ${q.respostas}">
+                    <input type="radio" disabled> 
+                    <span th:text="${r.texto}">Opção de resposta</span>
+                </li>
+            </ul>
+        </div>
+
+        <form th:action="@{/questionarios/salvar}" method="post">
+            
+            <input type="hidden" name="nome" th:value="${preview.nome}">
+            <input type="hidden" name="temaId" th:value="${temaSelecionadoId}">
+            
+            <th:block th:each="q : ${preview.questoes}">
+                <input type="hidden" name="questoesIds" th:value="${q.id}">
+            </th:block>
+
+            <div style="margin-top: 20px;">
+                <p>Gostou dessa seleção?</p>
+                <button type="submit" style="background-color: green; color: white; padding: 10px 20px; font-size: 16px;">
+                    ✅ Salvar Questionário
+                </button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

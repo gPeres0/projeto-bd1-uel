@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Resolvendo: [[${questionario.nome}]]</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f4f4; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .questao-card { margin-bottom: 25px; padding: 15px; border-bottom: 1px solid #eee; }
+        .opcao-resposta { 
+            display: block; 
+            padding: 10px; 
+            margin: 5px 0; 
+            border: 1px solid #ddd; 
+            border-radius: 4px; 
+            cursor: pointer;
+        }
+        
+        /* ESTILOS DE FEEDBACK */
+        .feedback-correto {
+            background-color: #d4edda; /* Verde claro */
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .feedback-errado-selecionado {
+            background-color: #f8d7da; /* Vermelho claro */
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .resultado-box {
+            background-color: #e2e3e5;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2 th:text="${questionario.nome}">Nome do Questionário</h2>
+    <a th:href="@{/questionarios/lista}">Voltar para Lista</a>
+    <hr/>
+
+    <div th:if="${submetido}" class="resultado-box">
+        <h3>Resultado Final</h3>
+        <p>Você acertou: <strong th:text="${placar}">3/5</strong> questões.</p>
+        <p>Sua nota: <strong th:text="${notaFinal}">6.0</strong></p>
+        <a th:href="@{/questionarios/lista}"><button>Concluir</button></a>
+    </div>
+
+    <form th:action="@{/questionarios/resolver/{id}(id=${questionario.id})}" method="post">
+        
+        <div th:each="q, i : ${questionario.questoes}" class="questao-card">
+            
+            <h4 th:text="${i.count} + '. ' + ${q.conteudo}">1. Enunciado...</h4>
+            
+            <div th:each="r : ${q.respostas}">
+                
+                <label class="opcao-resposta"
+                       th:classappend="${submetido} ? 
+                            ( ${r.eCorreta} ? 'feedback-correto' : 
+                              (${selecoesUsuario.get('resposta_' + q.id) == r.id.toString()} ? 'feedback-errado-selecionado' : '') 
+                            ) : ''">
+                    
+                    <input type="radio" 
+                           th:name="'resposta_' + ${q.id}" 
+                           th:value="${r.id}"
+                           th:checked="${submetido && selecoesUsuario.get('resposta_' + q.id) == r.id.toString()}"
+                           th:disabled="${submetido}" 
+                           required>
+                    
+                    <span th:text="${r.texto}">Texto da alternativa</span>
+                    
+                    <span th:if="${submetido && r.eCorreta}">✅ (Correta)</span>
+                    <span th:if="${submetido && !r.eCorreta && selecoesUsuario.get('resposta_' + q.id) == r.id.toString()}">❌ (Sua escolha)</span>
+                </label>
+            </div>
+        </div>
+
+        <div th:unless="${submetido}" style="text-align: center; margin-top: 30px;">
+            <button type="submit" style="padding: 15px 30px; font-size: 18px; background-color: blue; color: white; border: none; cursor: pointer;">
+                Enviar Respostas
+            </button>
+        </div>
+
+    </form>
+</div>
+
+</body>
+</html>

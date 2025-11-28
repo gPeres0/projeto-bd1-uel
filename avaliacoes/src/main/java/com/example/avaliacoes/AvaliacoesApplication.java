@@ -29,6 +29,7 @@ public class AvaliacoesApplication {
             try {
                 // Optional: for older drivers, you might need Class.forName("org.postgresql.Driver"); 
                 // Modern JDBC 4.0+ drivers load automatically.
+                @SuppressWarnings("unused")
                 Connection con = DriverManager.getConnection(url, user, password);
                 // Connection successful, proceed with database operations...
             } catch (SQLException e) {

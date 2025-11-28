@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Questionários</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .status-nao { color: #d9534f; font-weight: bold; }
+        .status-sim { color: #5cb85c; }
+        .btn-resolver { 
+            padding: 8px 12px; text-decoration: none; color: white; border-radius: 4px; 
+            font-size: 14px; display: inline-block;
+        }
+        .bg-blue { background-color: #007bff; }
+        .bg-green { background-color: #28a745; }
+    </style>
+</head>
+<body>
+
+    <h2>Questionários Disponíveis</h2>
+    
+    <div style="margin-bottom: 20px;">
+        <a th:href="@{/dashboard}">⬅ Voltar ao Dashboard</a> | 
+        <a th:href="@{/questionarios/gerar}">➕ Criar Novo Questionário</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Tema</th>
+                <th>Status / Resultado</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="item : ${listaQuestionarios}">
+                
+                <td th:text="${item.titulo}">Prova 1</td>
+                
+                <td th:text="${item.tema ?: 'Sem Tema'}">Matemática</td>
+                
+                <td>
+                    <span th:unless="${item.resolvido}" class="status-nao">
+                        Ainda não resolvido
+                    </span>
+
+                    <div th:if="${item.resolvido}" class="status-sim">
+                        <strong>Nota:</strong> <span th:text="${item.nota}">10.0</span><br/>
+                        <small>Resolvido em: 
+                            <span th:text="${#temporals.format(item.dataResolucao, 'dd/MM/yyyy HH:mm')}"></span>
+                        </small>
+                    </div>
+                </td>
+
+                <td>
+                    <a th:href="@{/questionarios/resolver/{id}(id=${item.id})}" class="btn-resolver"
+                       th:classappend="${item.resolvido} ? 'bg-green' : 'bg-blue'">
+                        
+                        <span th:if="${item.resolvido}">🔄 Resolver novamente</span>
+                        <span th:unless="${item.resolvido}">📝 Resolver</span>
+                    </a>
+                </td>
+            </tr>
+            
+            <tr th:if="${#lists.isEmpty(listaQuestionarios)}">
+                <td colspan="4" style="text-align: center;">Nenhum questionário encontrado. Crie um novo!</td>
+            </tr>
+        </tbody>
+    </table>
+
+</body>
+</html>

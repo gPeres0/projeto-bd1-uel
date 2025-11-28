@@ -21,9 +21,7 @@ public class RespostaRepository {
         Resposta resposta = new Resposta();
         resposta.setId(rs.getLong("id"));
         resposta.setTexto(rs.getString("texto"));
-        
         resposta.setECorreta(rs.getBoolean("e_correta")); 
-        
         resposta.setQuestaoId(rs.getLong("questao_id"));
         return resposta;
     };
