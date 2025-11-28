@@ -23,15 +23,8 @@ CREATE TABLE IF NOT EXISTS tema (
 CREATE TABLE IF NOT EXISTS questionario (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(255) NOT NULL,
-    nota INTEGER,
     id_user INTEGER REFERENCES usuario(id)
-);
-
--- QUESTIONARIO <-> TEMA
-CREATE TABLE IF NOT EXISTS questionario_tema (
-    questionario_id INTEGER NOT NULL REFERENCES questionario(id) ON DELETE CASCADE,
-    tema_id INTEGER NOT NULL REFERENCES tema(id) ON DELETE CASCADE,
-    PRIMARY KEY (questionario_id, tema_id)
+    tema_id INTEGER REFERENCES tema(id)
 );
 
 -- QUESTIONARIO <-> QUESTAO

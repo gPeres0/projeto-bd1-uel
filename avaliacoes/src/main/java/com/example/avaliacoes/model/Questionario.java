@@ -11,17 +11,12 @@ public class Questionario {
 
     private Long id;
     private String nome;
-    private Integer nota;
-
     // Relacionamento N:1
     private Usuario usuario;
-
-    // Relacionamento N:M
-    private List<Tema> temas = new ArrayList<>();
-
+    // Relacionamento N:1
+    private Tema tema;
     // Relacionamento N:M
     private List<Questao> questoes = new ArrayList<>();
-
     // Relacionamento 1:N
     private List<Resultado> resultados = new ArrayList<>();
 }
