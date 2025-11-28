@@ -65,7 +65,6 @@ public class QuestionarioController {
         return "gerar-questionario";
     }
 
-    // 3. Ação de Salvar Definitivo
     @PostMapping("/salvar")
     public String salvarQuestionario(@RequestParam String nome, @RequestParam Long temaId, @RequestParam(required = false) List<Long> questoesIds, 
                                      RedirectAttributes attributes, HttpSession session) {
@@ -142,7 +141,6 @@ public class QuestionarioController {
 
         // Itera sobre as questões para verificar acertos
         for (Questao questao : q.getQuestoes()) {
-            // O form envia parâmetros como "resposta_10" -> "45" (id_questao -> id_resposta)
             String respostaSelecionadaIdStr = formParams.get("resposta_" + questao.getId());
             
             if (respostaSelecionadaIdStr != null) {
