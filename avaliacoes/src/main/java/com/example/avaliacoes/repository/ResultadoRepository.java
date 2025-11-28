@@ -1,6 +1,8 @@
 package com.example.avaliacoes.repository;
 
 import com.example.avaliacoes.model.Resultado;
+import com.example.avaliacoes.dto.EstatisticaTemaDTO;
+import com.example.avaliacoes.dto.GraficoPontoDTO;
 import com.example.avaliacoes.model.Questionario;
 import com.example.avaliacoes.model.Usuario;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -82,7 +84,6 @@ public class ResultadoRepository {
     // Salva o resultado.
     public Resultado save(Resultado r) {
         if (r.getId() == null) {
-            // Inserção
             String sql = "INSERT INTO resultado (nota, data, id_user, id_questionario) VALUES (?, ?, ?, ?) RETURNING id";
             
             // Define a data atual se não vier preenchida
@@ -106,5 +107,45 @@ public class ResultadoRepository {
             );
         }
         return r;
+    }
+
+    // Busca dados para o gráfico de linha (tema, data e nota).
+    public List<GraficoPontoDTO> findHistoricoGrafico(Long userId) {
+        String sql = """
+            SELECT t.nome as tema, to_char(r.data, 'DD/MM HH24:MI') as data_fmt, r.nota
+            FROM resultado r
+            JOIN questionario q ON r.id_questionario = q.id
+            JOIN tema t ON q.tema_id = t.id
+            WHERE r.id_user = ?
+            ORDER BY r.data ASC
+        """;
+        
+        return jdbc.query(sql, (rs, rowNum) -> new GraficoPontoDTO(
+            rs.getString("tema"),
+            rs.getString("data_fmt"),
+            rs.getDouble("nota")
+        ), userId);
+    }
+
+    // Calcula estatísticas agrupadas por tema.
+    public List<EstatisticaTemaDTO> findEstatisticasPorTema(Long userId) {
+        String sql = """
+            SELECT 
+                t.nome as tema, 
+                AVG(r.nota) as media, 
+                COUNT(r.id) as total_q
+            FROM resultado r
+            JOIN questionario q ON r.id_questionario = q.id
+            JOIN tema t ON q.tema_id = t.id
+            WHERE r.id_user = ?
+            GROUP BY t.nome
+            ORDER BY media DESC
+        """;
+
+        return jdbc.query(sql, (rs, rowNum) -> new EstatisticaTemaDTO(
+            rs.getString("tema"),
+            Math.round(rs.getDouble("media") * 10.0) / 10.0,
+            rs.getInt("total_q")
+        ), userId);
     }
 }
