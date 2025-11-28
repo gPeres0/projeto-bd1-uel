@@ -2,6 +2,7 @@ package com.example.avaliacoes.controller;
 
 import com.example.avaliacoes.model.Usuario;
 import com.example.avaliacoes.service.UsuarioService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,12 +40,13 @@ public class AuthController {
      * Processa o envio do formulário e tenta autenticar
      */
     @PostMapping("/login")
-    public String realizarLogin(@ModelAttribute Usuario usuario, RedirectAttributes attributes) {
+    public String realizarLogin(@ModelAttribute Usuario usuario, RedirectAttributes attributes, HttpSession session) {
         
         Optional<Usuario> autenticado = usuarioService.autenticar(usuario.getEmail(), usuario.getSenha());
 
         if (autenticado.isPresent()) {
             // Login bem-sucedido
+            session.setAttribute("usuarioId", autenticado.get().getId());
             attributes.addFlashAttribute("mensagemSucesso", "Bem-vindo, " + autenticado.get().getNome() + "!");
             return "redirect:/dashboard";
         } else {
@@ -75,6 +77,7 @@ public class AuthController {
      */
     @PostMapping("/cadastro")
     public String salvarCadastro(@ModelAttribute Usuario usuario, RedirectAttributes attributes) {        
+        @SuppressWarnings("unused")
         Usuario novoUsuario = usuarioService.salvarUsuario(usuario);
         attributes.addFlashAttribute("mensagemSucesso", "Cadastro realizado com sucesso! Faça o login.");
         return "redirect:/login";
