@@ -89,39 +89,6 @@ public class QuestionarioRepository {
         q.setQuestoes(questoes);
     }
 
-    @Transactional
-    public void save(Questionario q) {
-        Long questionarioId = q.getId();
-
-        // Inserir ou Atualizar tabela 'questionario'
-        if (questionarioId == null) {
-            String sql = "INSERT INTO questionario (nome, id_user, tema_id) VALUES (?, ?, ?) RETURNING id";
-            questionarioId = jdbc.queryForObject(sql, Long.class, 
-                q.getNome(), 
-                q.getUsuario() != null ? q.getUsuario().getId() : 0,
-                q.getTema() != null ? q.getTema().getId() : 0
-            );
-            q.setId(questionarioId);
-        } else {
-            jdbc.update("UPDATE questionario SET nome = ?, id_user = ? WHERE id = ?",
-                q.getNome(), 
-                q.getUsuario() != null ? q.getUsuario().getId() : 0,
-                q.getTema() != null ? q.getTema().getId() : 0,
-                questionarioId);
-            
-            // Limpar relacionamentos antigos para recriar
-            jdbc.update("DELETE FROM questionario_questao WHERE questionario_id = ?", questionarioId);
-        }
-
-        // Salvar relacionamentos na tabela 'questionario_questao'
-        if (q.getQuestoes() != null) {
-            for (Questao k : q.getQuestoes()) {
-                jdbc.update("INSERT INTO questionario_questao (questionario_id, questao_id) VALUES (?, ?)",
-                    questionarioId, k.getId());
-            }
-        }
-    }
-
     // Busca questionários e junta com o resultado do usuário específico (se existir).
     public List<QuestionarioExibicaoDTO> findAllWithStatusForUser(Long userId) {
         String sql = """
@@ -189,5 +156,45 @@ public class QuestionarioRepository {
             questao.setRespostas(respostas);
         }
         q.setQuestoes(questoes);
+    }
+
+    @Transactional
+    public void save(Questionario q) {
+        Long questionarioId = q.getId();
+
+        // Inserir ou Atualizar tabela 'questionario'
+        if (questionarioId == null) {
+            String sql = "INSERT INTO questionario (nome, id_user, tema_id) VALUES (?, ?, ?) RETURNING id";
+            questionarioId = jdbc.queryForObject(sql, Long.class, 
+                q.getNome(), 
+                q.getUsuario() != null ? q.getUsuario().getId() : 0,
+                q.getTema() != null ? q.getTema().getId() : 0
+            );
+            q.setId(questionarioId);
+        } else {
+            jdbc.update("UPDATE questionario SET nome = ?, id_user = ? WHERE id = ?",
+                q.getNome(), 
+                q.getUsuario() != null ? q.getUsuario().getId() : 0,
+                q.getTema() != null ? q.getTema().getId() : 0,
+                questionarioId);
+            
+            // Limpar relacionamentos antigos para recriar
+            jdbc.update("DELETE FROM questionario_questao WHERE questionario_id = ?", questionarioId);
+        }
+
+        // Salvar relacionamentos na tabela 'questionario_questao'
+        if (q.getQuestoes() != null) {
+            for (Questao k : q.getQuestoes()) {
+                jdbc.update("INSERT INTO questionario_questao (questionario_id, questao_id) VALUES (?, ?)",
+                    questionarioId, k.getId());
+            }
+        }
+    }
+
+    @Transactional
+    public void deleteById(Long id) {
+        jdbc.update("DELETE FROM resultado WHERE id_questionario = ?", id);
+        jdbc.update("DELETE FROM questionario_questao WHERE questionario_id = ?", id);
+        jdbc.update("DELETE FROM questionario WHERE id = ?", id);
     }
 }

@@ -251,6 +251,15 @@
                                class="btn-action btn-solve">
                                 <i class="fa-solid fa-pen"></i> Resolver
                             </a>
+
+                            <a th:href="@{/questionarios/excluir/{id}(id=${item.id})}" 
+                               title="Excluir Questionário"
+                               style="color: #dc3545; padding: 8px; border: 1px solid #dc3545; border-radius: 6px; transition: all 0.2s;"
+                               onmouseover="this.style.backgroundColor='#dc3545'; this.style.color='white';"
+                               onmouseout="this.style.backgroundColor='transparent'; this.style.color='#dc3545';"
+                               onclick="return confirm('ATENÇÃO: Excluir este questionário apagará todos os resultados associados a ele. Continuar?');">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </a>
                         </td>
                     </tr>
                 </tbody>

@@ -176,4 +176,11 @@ public class QuestionarioController {
 
         return "resolver-questionario";
     }
+
+    @GetMapping("/excluir/{id}")
+    public String excluirQuestionario(@PathVariable Long id, RedirectAttributes attr) {
+        questionarioService.excluir(id);
+        attr.addFlashAttribute("mensagemSucesso", "Questionário excluído com sucesso.");
+        return "redirect:/questionarios/lista";
+    }
 }

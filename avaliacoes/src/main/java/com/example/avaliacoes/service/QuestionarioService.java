@@ -14,7 +14,7 @@ public class QuestionarioService {
 
     private final QuestionarioRepository questionarioRepository;
     private final QuestaoRepository questaoRepository;
-    private final RespostaRepository respostaRepository; // Necessário para o preview das respostas
+    private final RespostaRepository respostaRepository;
 
     public QuestionarioService(QuestionarioRepository questionarioRepository, 
                                QuestaoRepository questaoRepository,
@@ -34,18 +34,14 @@ public class QuestionarioService {
         // tema = temaRepository.findById(temaId);
         preview.setTema(tema);
         
-        // 1. Buscar todas as questões do tema
         List<Questao> todasQuestoes = questaoRepository.findByTemaId(temaId);
         
-        // 2. Embaralhar a lista (Aleatoriedade)
         Collections.shuffle(todasQuestoes);
         
-        // 3. Pegar as 5 primeiras (ou menos, se não tiver 5)
         List<Questao> selecionadas = todasQuestoes.stream()
             .limit(5)
             .collect(Collectors.toList());
             
-        // 4. Carregar as respostas para essas questões (para o preview)
         for (Questao q : selecionadas) {
             List<Resposta> respostas = respostaRepository.findByQuestaoId(q.getId());
             q.setRespostas(respostas);
@@ -55,7 +51,6 @@ public class QuestionarioService {
         return preview;
     }
     
-    // Método para contar questões (aviso)
     public int contarQuestoesPorTema(Long temaId) {
         return questaoRepository.findByTemaId(temaId).size();
     }
@@ -66,5 +61,9 @@ public class QuestionarioService {
 
     public List<QuestionarioExibicaoDTO> listarParaExibicao(Long userId) {
         return questionarioRepository.findAllWithStatusForUser(userId);
+    }
+
+    public void excluir(Long id) {
+        questaoRepository.deleteById(id);
     }
 }
