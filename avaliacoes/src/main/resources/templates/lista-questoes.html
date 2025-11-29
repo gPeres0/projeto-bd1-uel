@@ -182,6 +182,21 @@
                                 Geografia
                             </span>
                         </td>
+
+                        <td>
+                            <div style="display: flex; gap: 10px;">
+                                <a th:href="@{/questoes/editar/{id}(id=${questao.id})}" title="Editar"
+                                   style="color: #4facfe; font-size: 1.1rem;">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                            
+                                <a th:href="@{/questoes/excluir/{id}(id=${questao.id})}" title="Excluir"
+                                   style="color: #ff6b6b; font-size: 1.1rem;"
+                                   onclick="return confirm('Tem certeza que deseja excluir esta questão? Isso não pode ser desfeito.');">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
