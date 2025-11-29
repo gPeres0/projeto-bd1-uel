@@ -181,6 +181,8 @@
 
         <form th:action="@{/questoes/nova}" th:object="${questao}" method="post">
 
+            <input type="hidden" th:field="*{id}" />
+
             <h3>Enunciado da Questão</h3>
             <div class="form-group">
                 <textarea id="conteudo" th:field="*{conteudo}" placeholder="Digite o texto da pergunta aqui..." required></textarea>
@@ -192,7 +194,7 @@
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">Preencha as alternativas e marque a caixa ao lado da correta.</p>
             
             <div th:each="resposta, stat : *{respostas}" class="answer-row">
-                
+                <input type="hidden" th:field="*{respostas[__${stat.index}__].id}" />
                 <div class="answer-input-wrapper">
                     <input type="text" 
                            th:field="*{respostas[__${stat.index}__].texto}" 
@@ -231,7 +233,10 @@
                 <input type="text" id="novoTemaNome" name="novoTemaNome" placeholder="Digite o nome para criar um novo tema" />
             </div>
             
-            <button type="submit">Salvar Questão</button>
+            <button type="submit">
+                <span th:if="${questao.id == null}">Cadastrar Questão</span>
+                <span th:unless="${questao.id == null}">Salvar Alterações</span>
+            </button>
         </form>
         
         <div style="text-align: center;">

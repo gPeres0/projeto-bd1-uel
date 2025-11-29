@@ -38,7 +38,7 @@ public class RespostaRepository {
         return jdbc.queryForObject(sql, respostaMapper, id);
     }
 
-    // Salva (Insere) ou Atualiza uma resposta.
+    // Insere ou Atualiza uma resposta.
     public Resposta save(Resposta resposta) {
         if (resposta.getId() == null) {
             // INSERÇÃO

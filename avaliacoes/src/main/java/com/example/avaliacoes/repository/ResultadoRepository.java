@@ -35,7 +35,7 @@ public class ResultadoRepository {
         // Verifica se a coluna do JOIN existe antes de tentar pegar o nome
         try {
             u.setNome(rs.getString("usuario_nome")); 
-        } catch (Exception e) { /* Coluna não existe no result set, ignora */ }
+        } catch (Exception e) {}
         r.setUsuario(u);
 
         // Monta objeto Questionario (N:1)
