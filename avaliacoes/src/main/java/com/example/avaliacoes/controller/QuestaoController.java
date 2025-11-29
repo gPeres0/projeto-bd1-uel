@@ -10,8 +10,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/questoes")
@@ -54,8 +56,6 @@ public class QuestaoController {
             questao.setTema(novoTema); // Associa o novo tema à questão
         
         } else if (questao.getTema() != null && questao.getTema().getId() != null) {
-            // 2. Lógica para usar um Tema EXISTENTE, se um ID foi selecionado.
-            // O Spring já deve ter anexado o Tema pelo ID, mas garantimos
             Tema temaExistente = temaService.buscarPorId(questao.getTema().getId());
             questao.setTema(temaExistente);
         }
@@ -69,5 +69,23 @@ public class QuestaoController {
         // Lógica para buscar e exibir todas as questões.
         model.addAttribute("questoes", questaoService.encontrarTodas());
         return "lista-questoes";
+    }
+
+    @GetMapping("/excluir/{id}")
+    public String excluirQuestao(@PathVariable Long id, RedirectAttributes attr) {
+        questaoService.excluir(id);
+        attr.addFlashAttribute("mensagemSucesso", "Questão excluída com sucesso.");
+        return "redirect:/questoes/lista";
+    }
+
+    @GetMapping("/editar/{id}")
+    public String editarQuestao(@PathVariable Long id, Model model) {
+        Questao questao = questaoService.buscarPorId(id);
+        
+        model.addAttribute("questao", questao);
+        model.addAttribute("temas", temaService.encontrarTodos());
+        model.addAttribute("novoTema", new com.example.avaliacoes.model.Tema());
+        
+        return "cadastro-questao";
     }
 }

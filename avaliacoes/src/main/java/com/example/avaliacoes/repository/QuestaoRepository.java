@@ -56,7 +56,7 @@ public class QuestaoRepository {
         });
 
         for (Questao q : lista) {
-            String sqlResp = "SELECT * FROM resposta WHERE questao_id = ?"; // ou id_quest
+            String sqlResp = "SELECT * FROM resposta WHERE questao_id = ?";
             List<Resposta> respostas = jdbc.query(sqlResp, (rs, rn) -> {
                 Resposta r = new Resposta();
                 r.setId(rs.getLong("id"));
@@ -67,6 +67,45 @@ public class QuestaoRepository {
         }
 
         return lista;
+    }
+
+    public Questao findById(Long id) {
+        String sqlQuestao = """
+            SELECT q.*, t.nome as tema_nome 
+            FROM questao q 
+            LEFT JOIN tema t ON q.tema_id = t.id 
+            WHERE q.id = ?
+        """;
+
+        Questao q = jdbc.queryForObject(sqlQuestao, (rs, rowNum) -> {
+            Questao obj = new Questao();
+            obj.setId(rs.getLong("id"));
+            obj.setConteudo(rs.getString("conteudo"));
+            
+            com.example.avaliacoes.model.Tema t = new com.example.avaliacoes.model.Tema();
+            t.setId(rs.getLong("tema_id"));
+            try { t.setNome(rs.getString("tema_nome")); } catch (Exception e) {}
+            obj.setTema(t);
+            
+            return obj;
+        }, id);
+
+        if (q != null) {
+            String sqlRespostas = "SELECT * FROM resposta WHERE questao_id = ?"; 
+            
+            List<com.example.avaliacoes.model.Resposta> respostas = jdbc.query(sqlRespostas, (rs, rowNum) -> {
+                com.example.avaliacoes.model.Resposta r = new com.example.avaliacoes.model.Resposta();
+                r.setId(rs.getLong("id"));
+                r.setTexto(rs.getString("texto"));
+                r.setECorreta(rs.getBoolean("e_correta"));
+                r.setQuestaoId(q.getId());
+                return r;
+            }, id);
+
+            q.setRespostas(respostas);
+        }
+
+        return q;
     }
 
     public List<Questao> findByTemaId(Long temaId) {
@@ -81,11 +120,10 @@ public class QuestaoRepository {
         }, temaId);
     }
 
-    @Transactional // Garante que Questão e Respostas sejam salvas juntas ou falhem juntas
+    @Transactional
     public void save(Questao questao) {
         Long questaoId = questao.getId();
 
-        // 1. Salvar ou Atualizar a Questão
         if (questaoId == null) {
             String sql = "INSERT INTO questao (conteudo, tema_id) VALUES (?, ?) RETURNING id";
             questaoId = jdbc.queryForObject(sql, Long.class, 
@@ -97,18 +135,24 @@ public class QuestaoRepository {
                         questao.getConteudo(), 
                         questao.getTema().getId(), 
                         questaoId);
-            // Limpa respostas antigas para recriar (estratégia simples)
             jdbc.update("DELETE FROM resposta WHERE questao_id = ?", questaoId);
         }
 
-        // 2. Salvar as Respostas manualmente (Substitui o Cascade do JPA)
         if (questao.getRespostas() != null) {
             for (Resposta r : questao.getRespostas()) {
                 jdbc.update("INSERT INTO resposta (texto, e_correta, questao_id) VALUES (?, ?, ?)",
                         r.getTexto(),
-                        r.getECorreta(), // Boolean Getter correto
-                        questaoId);      // Usa o ID da questão recém-salva
+                        r.getECorreta(),
+                        questaoId);
             }
         }
+    }
+
+    // Exclui a questão e suas dependências.
+    @Transactional
+    public void deleteById(Long id) {
+        jdbc.update("DELETE FROM resposta WHERE questao_id = ?", id);
+        jdbc.update("DELETE FROM questionario_questao WHERE questao_id = ?", id);
+        jdbc.update("DELETE FROM questao WHERE id = ?", id);
     }
 }

@@ -17,7 +17,15 @@ public class QuestaoService {
         return questaoRepository.findAll();
     }
 
+    public Questao buscarPorId(Long id) {
+        return questaoRepository.findById(id);
+    }
+
     public void salvarQuestao(Questao questao) {
         questaoRepository.save(questao);
+    }
+
+    public void excluir(Long id) {
+        questaoRepository.deleteById(id);
     }
 }
