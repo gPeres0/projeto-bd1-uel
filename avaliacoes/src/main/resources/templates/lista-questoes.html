@@ -2,32 +2,205 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Questões Criadas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banco de Questões</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-body: #181920;
+            --bg-card: #242530;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --accent-color: #4facfe;
+            --border-color: #2f3040;
+            --table-hover: #2c2d3a;
+            --header-bg: #1f2029;
+            --answer-bg: #2a2b36;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 1000px;
+            border: 1px solid var(--border-color);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 { font-weight: 600; color: var(--text-main); }
+
+        .btn-new {
+            background-color: var(--accent-color);
+            color: #181920;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: filter 0.2s;
+        }
+        .btn-new:hover { filter: brightness(1.1); }
+
+        .table-responsive { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+
+        th {
+            background-color: var(--header-bg);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            padding: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 20px 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            vertical-align: top;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: var(--table-hover); }
+
+        .col-id { width: 60px; color: var(--text-muted); font-family: monospace; }
+        .col-tema { width: 180px; }
+
+        .theme-badge {
+            display: inline-block;
+            background-color: rgba(79, 172, 254, 0.15);
+            color: var(--accent-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .question-content {
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .answers-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 8px;
+        }
+
+        .answers-list li {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .answers-list li::before {
+            content: "•";
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.3; }
+
+        .footer-actions { margin-top: 30px; text-align: center; }
+        .btn-back { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+        .btn-back:hover { color: var(--accent-color); }
+
+    </style>
 </head>
 <body>
 
-    <h2>Questões Existentes</h2>
-    
-    <table border="1" style="width: 80%; border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th style="padding: 10px;">ID</th>
-                <th style="padding: 10px;">Conteúdo da Questão</th>
-                <th style="padding: 10px;">Tema</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="questao : ${questoes}">
-                <td th:text="${questao.id}" style="padding: 8px;">1</td>
-                <td th:text="${questao.conteudo}" style="padding: 8px;">Qual a capital do Brasil?</td>
-                <td th:text="${questao.tema.nome}" style="padding: 8px;">Geografia</td>
-            </tr>
-        </tbody>
-    </table>
-    
-    <p style="margin-top: 30px;">
-        <a th:href="@{/dashboard}">Voltar ao Dashboard</a>
-    </p>
+    <div class="container">
+        
+        <div class="page-header">
+            <h2>Questões Existentes</h2>
+            <a th:href="@{/questoes/nova}" class="btn-new">
+                <i class="fa-solid fa-plus"></i> Nova Questão
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            
+            <table th:if="${not #lists.isEmpty(questoes)}">
+                <thead>
+                    <tr>
+                        <th class="col-id">#ID</th>
+                        <th>Conteúdo e Opções</th>
+                        <th class="col-tema">Tema</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="questao : ${questoes}">
+                        <td class="col-id" th:text="${questao.id}">1</td>
+                        
+                        <td>
+                            <span class="question-content" th:text="${questao.conteudo}">Enunciado da questão...</span>
+                            
+                            <ul class="answers-list" th:if="${not #lists.isEmpty(questao.respostas)}">
+                                <li th:each="resp : ${questao.respostas}" th:text="${resp.texto}">
+                                    Opção de resposta aqui
+                                </li>
+                            </ul>
+                            
+                            <span th:if="${#lists.isEmpty(questao.respostas)}" style="color: #ff6b6b; font-size: 0.8rem; font-style: italic;">
+                                (Sem respostas cadastradas)
+                            </span>
+                        </td>
+                        
+                        <td>
+                            <span class="theme-badge" 
+                                  th:text="${questao.tema != null ? questao.tema.nome : 'Sem Tema'}">
+                                Geografia
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${#lists.isEmpty(questoes)}" class="empty-state">
+                <i class="fa-regular fa-folder-open"></i>
+                <p>Nenhuma questão encontrada no banco de dados.</p>
+                <p style="font-size: 0.9rem; margin-top: 5px;">Use o botão acima para cadastrar a primeira.</p>
+            </div>
+
+        </div>
+        
+        <div class="footer-actions">
+            <a th:href="@{/dashboard}" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard
+            </a>
+        </div>
+
+    </div>
 
 </body>
 </html>

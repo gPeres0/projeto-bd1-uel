@@ -2,29 +2,163 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Desempenho</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f8f9fa; }
-        .container { max-width: 900px; margin: 0 auto; }
-        .card-container { display: flex; gap: 20px; margin-top: 30px; justify-content: space-between; }
-        .card { 
-            flex: 1; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-            background: white; text-align: center;
+        :root {
+            --bg-body: #181920;
+            --bg-card: #242530;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --accent-color: #4facfe;
+            --border-color: #2f3040;
+            
+            --success-color: #28a745;
+            --success-glow: rgba(40, 167, 69, 0.4);
+            
+            --danger-color: #dc3545;
+            --danger-glow: rgba(220, 53, 69, 0.4);
         }
-        .card h3 { margin-top: 0; color: #555; }
-        .card .nota-destaque { font-size: 2.5em; font-weight: bold; margin: 10px 0; }
-        .card.melhor { border-top: 5px solid #28a745; }
-        .card.pior { border-top: 5px solid #dc3545; }
-        .chart-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 { font-weight: 600; color: var(--text-main); }
+
+        .btn-back {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        .btn-back:hover { color: var(--accent-color); }
+
+        /* Chart Box */
+        .chart-box {
+            background-color: var(--bg-card);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            height: 400px; /* Altura fixa para o gráfico */
+            position: relative;
+        }
+
+        /* Cards Container */
+        .card-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+
+        .card h3 {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tema-nome {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .nota-destaque {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            line-height: 1;
+        }
+
+        .card p { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+        .card small { display: block; margin-top: 15px; color: var(--text-muted); font-size: 0.85rem; }
+        .card small span { color: var(--text-main); font-weight: bold; }
+
+        /* Estilos Específicos: Melhor */
+        .card.melhor {
+            border-top: 4px solid var(--success-color);
+        }
+        .card.melhor .tema-nome { color: var(--success-color); }
+        .card.melhor .nota-destaque { 
+            background: linear-gradient(to bottom, #66ff99, var(--success-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px var(--success-glow));
+        }
+
+        /* Estilos Específicos: Pior */
+        .card.pior {
+            border-top: 4px solid var(--danger-color);
+        }
+        .card.pior .tema-nome { color: var(--danger-color); }
+        .card.pior .nota-destaque {
+            background: linear-gradient(to bottom, #ff8888, var(--danger-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px var(--danger-glow));
+        }
+
+        /* Empty State */
+        .empty-state { text-align: center; color: var(--text-muted); margin-top: 50px; }
+
+        @media (max-width: 768px) {
+            .card-container { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>📊 Meu Histórico de Rendimento</h2>
-    <a th:href="@{/dashboard}">⬅ Voltar ao Menu</a>
-    <hr/>
+    
+    <div class="page-header">
+        <h2><i class="fa-solid fa-chart-line"></i> Histórico de Rendimento</h2>
+        <a th:href="@{/dashboard}" class="btn-back">
+            <i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard
+        </a>
+    </div>
 
     <div class="chart-box">
         <canvas id="meuGrafico"></canvas>
@@ -33,24 +167,24 @@
     <div class="card-container" th:if="${melhorTema != null}">
         
         <div class="card melhor">
-            <h3>🏆 Melhor Desempenho</h3>
-            <div style="color: #28a745; font-weight: bold;" th:text="${melhorTema.tema}">Matemática</div>
-            <div class="nota-destaque" th:text="${melhorTema.mediaNota}">9.5</div>
+            <h3><i class="fa-solid fa-trophy"></i> Melhor Desempenho</h3>
+            <div class="tema-nome" th:text="${melhorTema.tema}">--</div>
+            <div class="nota-destaque" th:text="${melhorTema.mediaNota}">0.0</div>
             <p>Média Geral</p>
             <small>Questionários resolvidos: <span th:text="${melhorTema.totalQuestionarios}">5</span></small>
         </div>
 
         <div class="card pior">
-            <h3>⚠️ Precisa Melhorar</h3>
-            <div style="color: #dc3545; font-weight: bold;" th:text="${piorTema.tema}">História</div>
-            <div class="nota-destaque" th:text="${piorTema.mediaNota}">4.2</div>
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Precisa Melhorar</h3>
+            <div class="tema-nome" th:text="${piorTema.tema}">--</div>
+            <div class="nota-destaque" th:text="${piorTema.mediaNota}">0.0</div>
             <p>Média Geral</p>
             <small>Questionários resolvidos: <span th:text="${piorTema.totalQuestionarios}">3</span></small>
         </div>
 
     </div>
     
-    <div th:unless="${melhorTema != null}" style="text-align: center; margin-top: 30px;">
+    <div th:unless="${melhorTema != null}" class="empty-state">
         <p>Você ainda não resolveu questionários suficientes para gerar estatísticas.</p>
     </div>
 
@@ -59,11 +193,7 @@
 <script th:inline="javascript">
     /*<![CDATA[*/
     
-    // 1. Recupera os dados enviados pelo Java (Thymeleaf injeta aqui como JSON)
     var dadosRaw = /*[[${dadosGrafico}]]*/ [];
-
-    // 2. Processamento dos dados para o Chart.js
-    // Precisamos agrupar por TEMA
     
     var temasSet = new Set();
     var datasSet = new Set();
@@ -72,55 +202,89 @@
     dadosRaw.forEach(function(item) {
         temasSet.add(item.tema);
         datasSet.add(item.data);
-        
         if (!dadosPorTema[item.tema]) {
             dadosPorTema[item.tema] = [];
         }
         dadosPorTema[item.tema].push({x: item.data, y: item.nota});
     });
 
-    // Converte datasSet para array para usar como labels do eixo X
     var labels = Array.from(datasSet); 
     
-    // Cria os datasets (linhas)
-    var datasets = [];
-    var cores = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6610f2']; // Paleta de cores simples
+    var cores = [
+        '#00f2fe', // Ciano Neon
+        '#66ff99', // Verde Neon
+        '#ff6b6b', // Vermelho Pastel
+        '#ffca2c', // Amarelo
+        '#d63384', // Rosa Choque
+        '#6f42c1'  // Roxo
+    ];
     var corIndex = 0;
 
+    var datasets = [];
     temasSet.forEach(function(tema) {
         datasets.push({
             label: tema,
             data: dadosPorTema[tema],
             borderColor: cores[corIndex % cores.length],
             backgroundColor: cores[corIndex % cores.length],
+            borderWidth: 2,
+            pointBackgroundColor: '#181920',
+            pointBorderColor: cores[corIndex % cores.length],
+            pointRadius: 4,
+            pointHoverRadius: 6,
             fill: false,
-            tension: 0.1 // Suavização da linha
+            tension: 0.3
         });
         corIndex++;
     });
 
-    // 3. Renderiza o Gráfico
     var ctx = document.getElementById('meuGrafico').getContext('2d');
+    
+    Chart.defaults.color = '#a0a0b0'; // Cor do texto global
+    Chart.defaults.borderColor = '#2f3040'; // Cor das bordas/grid global
+
     var chart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: labels, // Eixo X (Datas)
+            labels: labels,
             datasets: datasets
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 10, // Nota máxima é 10
-                    title: { display: true, text: 'Nota Obtida' }
+                    max: 10,
+                    grid: { color: '#2f3040' },
+                    ticks: { color: '#a0a0b0' },
+                    title: { display: true, text: 'Nota Obtida', color: '#e0e0e0' }
                 },
                 x: {
-                    title: { display: true, text: 'Data da Resolução' }
+                    grid: { color: '#2f3040' },
+                    ticks: { color: '#a0a0b0' },
+                    title: { display: true, text: 'Data da Resolução', color: '#e0e0e0' }
                 }
             },
             plugins: {
-                title: { display: true, text: 'Evolução por Tema ao Longo do Tempo' }
+                legend: {
+                    labels: { color: '#e0e0e0', font: { size: 12 } }
+                },
+                title: {
+                    display: true,
+                    text: 'Evolução por Tema',
+                    color: '#e0e0e0',
+                    font: { size: 16, weight: '600' },
+                    padding: { bottom: 20 }
+                },
+                tooltip: {
+                    backgroundColor: '#242530',
+                    titleColor: '#fff',
+                    bodyColor: '#a0a0b0',
+                    borderColor: '#4facfe',
+                    borderWidth: 1,
+                    padding: 10
+                }
             }
         }
     });

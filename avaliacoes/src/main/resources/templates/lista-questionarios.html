@@ -2,74 +2,275 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista de Questionários</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .status-nao { color: #d9534f; font-weight: bold; }
-        .status-sim { color: #5cb85c; }
-        .btn-resolver { 
-            padding: 8px 12px; text-decoration: none; color: white; border-radius: 4px; 
-            font-size: 14px; display: inline-block;
+        :root {
+            --bg-body: #181920;
+            --bg-card: #242530;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --accent-color: #4facfe;
+            --accent-hover: #00f2fe;
+            --border-color: #2f3040;
+            --table-hover: #2c2d3a;
+            --header-bg: #1f2029;
+            
+            /* Status Colors */
+            --status-pending-bg: rgba(255, 193, 7, 0.1);
+            --status-pending-text: #ffca2c;
+            
+            --status-done-bg: rgba(40, 167, 69, 0.15);
+            --status-done-text: #75b798;
+            --status-done-border: #28a745;
         }
-        .bg-blue { background-color: #007bff; }
-        .bg-green { background-color: #28a745; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 1100px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 { font-weight: 600; color: var(--text-main); }
+
+        .btn-new {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            color: #181920;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: filter 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-new:hover { filter: brightness(1.1); }
+
+        /* Tabela */
+        .table-responsive { overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+
+        th {
+            background-color: var(--header-bg);
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            padding: 15px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 18px 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: var(--table-hover); }
+
+        /* Estilos de Coluna */
+        .col-title { font-weight: 600; color: white; }
+        .col-theme { color: var(--text-muted); }
+
+        /* Badge de Tema */
+        .theme-badge {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Status Cards */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: var(--status-pending-bg);
+            color: var(--status-pending-text);
+            border: 1px solid rgba(255, 202, 44, 0.2);
+        }
+
+        .status-done {
+            background-color: var(--status-done-bg);
+            color: var(--status-done-text);
+            border: 1px solid var(--status-done-border);
+        }
+
+        .done-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .nota-high { font-weight: bold; font-size: 1rem; color: #fff; }
+        .date-small { font-size: 0.75rem; opacity: 0.8; margin-top: 4px; display: block;}
+
+        /* Botões de Ação na Tabela */
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.1s, filter 0.2s;
+        }
+        .btn-action:active { transform: scale(0.95); }
+        .btn-action:hover { filter: brightness(1.1); }
+
+        .btn-solve {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+        }
+
+        .btn-resolve-again {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid #28a745;
+            color: #28a745;
+        }
+        .btn-resolve-again:hover {
+            background: #28a745;
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 50px; color: var(--text-muted); }
+        .empty-state i { font-size: 3rem; margin-bottom: 15px; opacity: 0.3; }
+
+        /* Footer */
+        .footer-actions { margin-top: 30px; text-align: center; }
+        .btn-back { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+        .btn-back:hover { color: var(--accent-color); }
+
     </style>
 </head>
 <body>
 
-    <h2>Questionários Disponíveis</h2>
-    
-    <div style="margin-bottom: 20px;">
-        <a th:href="@{/dashboard}">⬅ Voltar ao Dashboard</a> | 
-        <a th:href="@{/questionarios/gerar}">➕ Criar Novo Questionário</a>
-    </div>
+    <div class="container">
+        
+        <div class="page-header">
+            <h2>Questionários Disponíveis</h2>
+            <a th:href="@{/questionarios/gerar}" class="btn-new">
+                <i class="fa-solid fa-plus"></i> Novo Questionário
+            </a>
+        </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Título</th>
-                <th>Tema</th>
-                <th>Status / Resultado</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="item : ${listaQuestionarios}">
-                
-                <td th:text="${item.titulo}">Prova 1</td>
-                
-                <td th:text="${item.tema ?: 'Sem Tema'}">Matemática</td>
-                
-                <td>
-                    <span th:unless="${item.resolvido}" class="status-nao">
-                        Ainda não resolvido
-                    </span>
-
-                    <div th:if="${item.resolvido}" class="status-sim">
-                        <strong>Nota:</strong> <span th:text="${item.nota}">10.0</span><br/>
-                        <small>Resolvido em: 
-                            <span th:text="${#temporals.format(item.dataResolucao, 'dd/MM/yyyy HH:mm')}"></span>
-                        </small>
-                    </div>
-                </td>
-
-                <td>
-                    <a th:href="@{/questionarios/resolver/{id}(id=${item.id})}" class="btn-resolver"
-                       th:classappend="${item.resolvido} ? 'bg-green' : 'bg-blue'">
-                        
-                        <span th:if="${item.resolvido}">🔄 Resolver novamente</span>
-                        <span th:unless="${item.resolvido}">📝 Resolver</span>
-                    </a>
-                </td>
-            </tr>
+        <div class="table-responsive">
             
-            <tr th:if="${#lists.isEmpty(listaQuestionarios)}">
-                <td colspan="4" style="text-align: center;">Nenhum questionário encontrado. Crie um novo!</td>
-            </tr>
-        </tbody>
-    </table>
+            <table th:if="${not #lists.isEmpty(listaQuestionarios)}">
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Tema</th>
+                        <th>Status / Resultado</th>
+                        <th style="width: 200px;">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="item : ${listaQuestionarios}">
+                        
+                        <td class="col-title" th:text="${item.titulo}">Prova de Matemática</td>
+                        
+                        <td>
+                            <span class="theme-badge">
+                                <i class="fa-solid fa-tag" style="font-size: 0.7rem; margin-right: 4px;"></i>
+                                <span th:text="${item.tema ?: 'Geral'}">Matemática</span>
+                            </span>
+                        </td>
+                        
+                        <td>
+                            <span th:unless="${item.resolvido}" class="status-badge status-pending">
+                                <i class="fa-regular fa-clock"></i> Pendente
+                            </span>
+
+                            <div th:if="${item.resolvido}" class="status-badge status-done">
+                                <div class="done-details">
+                                    <span>
+                                        Nota: <span class="nota-high" th:text="${item.nota}">10.0</span>
+                                    </span>
+                                    <span class="date-small">
+                                        <i class="fa-regular fa-calendar"></i> 
+                                        <span th:text="${#temporals.format(item.dataResolucao, 'dd/MM/yyyy HH:mm')}"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            <a th:if="${item.resolvido}" 
+                               th:href="@{/questionarios/resolver/{id}(id=${item.id})}" 
+                               class="btn-action btn-resolve-again">
+                                <i class="fa-solid fa-rotate-right"></i> Refazer
+                            </a>
+
+                            <a th:unless="${item.resolvido}" 
+                               th:href="@{/questionarios/resolver/{id}(id=${item.id})}" 
+                               class="btn-action btn-solve">
+                                <i class="fa-solid fa-pen"></i> Resolver
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div th:if="${#lists.isEmpty(listaQuestionarios)}" class="empty-state">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <p>Nenhum questionário encontrado.</p>
+                <p style="font-size: 0.9rem; margin-top: 5px;">Utilize o botão "Novo Questionário" para gerar um desafio!</p>
+            </div>
+
+        </div>
+
+        <div class="footer-actions">
+            <a th:href="@{/dashboard}" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard
+            </a>
+        </div>
+
+    </div>
 
 </body>
 </html>

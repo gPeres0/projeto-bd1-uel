@@ -2,82 +2,258 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerador de Questionários</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        .aviso { background-color: #fff3cd; color: #856404; padding: 10px; border: 1px solid #ffeeba; margin-bottom: 15px; }
-        .questao-box { border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 5px; background-color: #f9f9f9; }
+        :root {
+            --bg-body: #181920;
+            --bg-card: #242530;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --input-bg: #131419;
+            --input-border: #33344a;
+            --accent-color: #4facfe;
+            --accent-hover: #00f2fe;
+            --success-bg: #28a745;
+            --success-hover: #34ce57;
+            --warning-bg: rgba(255, 193, 7, 0.1);
+            --warning-border: rgba(255, 193, 7, 0.3);
+            --warning-text: #ffca2c;
+            --box-bg: #1f2029;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #2f3040;
+        }
+
+        /* Header */
+        h2 { margin-bottom: 25px; font-weight: 600; text-align: center; }
+        
+        .header-actions { text-align: center; margin-bottom: 20px; }
+        .btn-back { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.3s; }
+        .btn-back:hover { color: var(--accent-color); }
+
+        hr { border: 0; height: 1px; background: var(--input-border); margin: 25px 0; }
+
+        /* Formulários */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+        }
+
+        /* Botão Primário (Gerar) */
+        .btn-generate {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            color: #181920;
+            transition: filter 0.2s, transform 0.1s;
+        }
+        .btn-generate:hover { filter: brightness(1.1); }
+        .btn-generate:active { transform: scale(0.98); }
+
+        .preview-header { margin-top: 40px; text-align: center; margin-bottom: 20px; color: var(--accent-color); }
+
+        /* Aviso */
+        .aviso {
+            background-color: var(--warning-bg);
+            color: var(--warning-text);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--warning-border);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        /* Caixa de Questão */
+        .questao-box {
+            background-color: var(--box-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .questao-title {
+            display: block;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-main);
+        }
+
+        /* Lista de Respostas */
         .resposta-lista { list-style-type: none; padding-left: 0; }
-        .resposta-lista li { margin-bottom: 5px; }
+        
+        .resposta-lista li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Radio desabilitado customizado para ficar visível no dark mode */
+        input[type="radio"] {
+            accent-color: var(--text-muted);
+            transform: scale(1.1);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Botão Salvar */
+        .save-section {
+            margin-top: 30px;
+            text-align: center;
+            background-color: rgba(40, 167, 69, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        .save-section p { margin-bottom: 15px; font-weight: 500; }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--success-bg) 0%, var(--success-hover) 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-save:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4); }
+
+        .footer-actions { margin-top: 30px; text-align: center; }
+
     </style>
 </head>
 <body>
 
-    <h2>Gerador Automático de Questionário</h2>
-    <a th:href="@{/dashboard}">Voltar ao Dashboard</a>
-    <hr/>
-
-    <form th:action="@{/questionarios/preview}" method="post">
+    <div class="container">
         
-        <div style="margin-bottom: 15px;">
-            <label for="nome">Nome do Questionário:</label><br>
-            <input type="text" id="nome" name="nome" required 
-                   th:value="${preview != null ? preview.nome : ''}" 
-                   placeholder="Ex: Prova de Matemática I">
-        </div>
+        <h2>Gerador Automático</h2>
+        <hr/>
 
-        <div style="margin-bottom: 15px;">
-            <label for="tema">Selecione o Tema:</label><br>
-            <select id="tema" name="temaId" required>
-                <option value="">-- Selecione --</option>
-                <option th:each="t : ${temas}" 
-                        th:value="${t.id}" 
-                        th:text="${t.nome}"
-                        th:selected="${temaSelecionadoId == t.id}">
-                </option>
-            </select>
-        </div>
-
-        <button type="submit">
-            <span th:if="${modoPreview}">🔄 Gerar Novamente (Outras Questões)</span>
-            <span th:unless="${modoPreview}">🎲 Gerar Questionário</span>
-        </button>
-    </form>
-
-    <div th:if="${modoPreview}" style="margin-top: 40px;">
-        
-        <h3>Pré-visualização do Questionário</h3>
-
-        <div th:if="${avisoQuantidade}" class="aviso">
-            <span th:text="${avisoQuantidade}"></span>
-        </div>
-
-        <div th:each="q, stat : ${preview.questoes}" class="questao-box">
-            <strong th:text="${stat.count} + '. ' + ${q.conteudo}"></strong>
+        <form th:action="@{/questionarios/preview}" method="post">
             
-            <ul class="resposta-lista">
-                <li th:each="r : ${q.respostas}">
-                    <input type="radio" disabled> 
-                    <span th:text="${r.texto}">Opção de resposta</span>
-                </li>
-            </ul>
-        </div>
-
-        <form th:action="@{/questionarios/salvar}" method="post">
-            
-            <input type="hidden" name="nome" th:value="${preview.nome}">
-            <input type="hidden" name="temaId" th:value="${temaSelecionadoId}">
-            
-            <th:block th:each="q : ${preview.questoes}">
-                <input type="hidden" name="questoesIds" th:value="${q.id}">
-            </th:block>
-
-            <div style="margin-top: 20px;">
-                <p>Gostou dessa seleção?</p>
-                <button type="submit" style="background-color: green; color: white; padding: 10px 20px; font-size: 16px;">
-                    ✅ Salvar Questionário
-                </button>
+            <div class="form-group">
+                <label for="nome">Nome do Questionário</label>
+                <input type="text" id="nome" name="nome" required 
+                       th:value="${preview != null ? preview.nome : ''}" 
+                       placeholder="Ex: Prova de Matemática I">
             </div>
+
+            <div class="form-group">
+                <label for="tema">Selecione o Tema</label>
+                <select id="tema" name="temaId" required>
+                    <option value="">-- Selecione na lista --</option>
+                    <option th:each="t : ${temas}" 
+                            th:value="${t.id}" 
+                            th:text="${t.nome}"
+                            th:selected="${temaSelecionadoId == t.id}">
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-generate">
+                <span th:if="${modoPreview}"><i class="fa-solid fa-rotate"></i> Gerar Novamente (Outras Questões)</span>
+                <span th:unless="${modoPreview}"><i class="fa-solid fa-wand-magic-sparkles"></i> Gerar Questionário</span>
+            </button>
         </form>
+
+        <div th:if="${modoPreview}">
+            
+            <h3 class="preview-header">Pré-visualização</h3>
+
+            <div th:if="${avisoQuantidade}" class="aviso">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span th:text="${avisoQuantidade}"></span>
+            </div>
+
+            <div th:each="q, stat : ${preview.questoes}" class="questao-box">
+                <span class="questao-title" th:text="${stat.count} + '. ' + ${q.conteudo}"></span>
+                
+                <ul class="resposta-lista">
+                    <li th:each="r : ${q.respostas}">
+                        <input type="radio" disabled> 
+                        <span th:text="${r.texto}">Opção de resposta</span>
+                    </li>
+                </ul>
+            </div>
+
+            <form th:action="@{/questionarios/salvar}" method="post">
+                
+                <input type="hidden" name="nome" th:value="${preview.nome}">
+                <input type="hidden" name="temaId" th:value="${temaSelecionadoId}">
+                
+                <th:block th:each="q : ${preview.questoes}">
+                    <input type="hidden" name="questoesIds" th:value="${q.id}">
+                </th:block>
+
+                <div class="save-section">
+                    <p>Gostou dessa seleção de perguntas?</p>
+                    <button type="submit" class="btn-save">
+                        <i class="fa-solid fa-floppy-disk"></i> Salvar Questionário
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="footer-actions">
+            <a th:href="@{/dashboard}" class="btn-back">
+                <i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard
+            </a>
+        </div>
+        
     </div>
 
 </body>

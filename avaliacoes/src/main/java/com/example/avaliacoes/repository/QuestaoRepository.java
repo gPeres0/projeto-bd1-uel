@@ -35,11 +35,38 @@ public class QuestaoRepository {
     };
 
     public List<Questao> findAll() {
-        // Fazemos um JOIN para pegar o nome do tema em uma única query
-        String sql = "SELECT q.id, q.conteudo, q.tema_id, t.nome as tema_nome " +
-                     "FROM questao q " +
-                     "JOIN tema t ON q.tema_id = t.id";
-        return jdbc.query(sql, questaoRowMapper);
+        String sql = """
+            SELECT q.*, t.nome as tema_nome 
+            FROM questao q 
+            LEFT JOIN tema t ON q.tema_id = t.id
+            ORDER BY q.id
+        """;
+        
+        List<Questao> lista = jdbc.query(sql, (rs, rowNum) -> {
+            Questao q = new Questao();
+            q.setId(rs.getLong("id"));
+            q.setConteudo(rs.getString("conteudo"));
+            
+            Tema t = new Tema();
+            t.setId(rs.getLong("tema_id"));
+            try { t.setNome(rs.getString("tema_nome")); } catch (Exception e) {}
+            q.setTema(t);
+            
+            return q;
+        });
+
+        for (Questao q : lista) {
+            String sqlResp = "SELECT * FROM resposta WHERE questao_id = ?"; // ou id_quest
+            List<Resposta> respostas = jdbc.query(sqlResp, (rs, rn) -> {
+                Resposta r = new Resposta();
+                r.setId(rs.getLong("id"));
+                r.setTexto(rs.getString("texto"));
+                return r;
+            }, q.getId());
+            q.setRespostas(respostas);
+        }
+
+        return lista;
     }
 
     public List<Questao> findByTemaId(Long temaId) {

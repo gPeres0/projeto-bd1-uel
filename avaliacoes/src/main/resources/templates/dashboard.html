@@ -2,39 +2,181 @@
 <html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Principal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-body: #181920;
+            --bg-card: #242530;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --accent-color: #4facfe;
+            --accent-hover: #00f2fe;
+            --border-color: #2f3040;
+            --success-bg: #1e3a29;
+            --success-text: #66ff99;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .welcome-text h2 { font-weight: 600; letter-spacing: 0.5px; }
+        .welcome-text p { color: var(--text-muted); margin-top: 5px; }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background-color: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-logout:hover {
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        /* --- Alertas --- */
+        .alert-success {
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(102, 255, 153, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Grid de Cards --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card i {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            background: -webkit-linear-gradient(45deg, var(--accent-color), var(--accent-hover));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+    </style>
 </head>
 <body>
 
-    <h2 th:if="${mensagemSucesso}" th:text="${mensagemSucesso}" style="color: blue;"></h2>
-    <h2>Dashboard Principal</h2>
-    <p>Bem-vindo ao sistema de Avaliações. Escolha uma opção:</p>
-    
-    <div style="margin-top: 20px;">
-        <a th:href="@{/questoes/nova}">
-            <button style="padding: 10px 15px; margin-right: 15px;">Criar Nova Questão</button>
-        </a>
+    <div class="container">
         
-        <a th:href="@{/questoes/lista}">
-            <button style="padding: 10px 15px; margin-right: 15px;">Visualizar Questões Existentes</button>
-        </a>
-        
-        <a th:href="@{/questionarios/gerar}">
-            <button style="padding: 10px 15px; margin-right: 15px;">Gerar Questionários</button>
-        </a>
-        
-        <a th:href="@{/questionarios/lista}">
-            <button style="padding: 10px 15px; margin-right: 15px;">Listar Questionários</button>
-        </a>
-        
-        <a th:href="@{/dashboard/desempenho}">
-            <button style="padding: 10px 15px; margin-right: 15px;">Tela de Desempenho</button>
-        </a>
-    </div>
+        <header>
+            <div class="welcome-text">
+                <h2>Dashboard</h2>
+                <p>Bem-vindo ao Sistema de Avaliações</p>
+            </div>
+            <a th:href="@{/login}" class="btn-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair
+            </a>
+        </header>
 
-    <p style="margin-top: 40px;">
-        <a th:href="@{/login}">Sair (Logout)</a>
-    </p>
+        <div th:if="${mensagemSucesso}" class="alert-success">
+            <i class="fa-solid fa-check-circle"></i>
+            <span th:text="${mensagemSucesso}">Operação realizada com sucesso!</span>
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <a th:href="@{/questoes/nova}" class="card">
+                <i class="fa-solid fa-circle-plus"></i>
+                <h3>Criar Nova Questão</h3>
+                <p>Cadastre novas perguntas e suas respostas.</p>
+            </a>
+            
+            <a th:href="@{/questoes/lista}" class="card">
+                <i class="fa-solid fa-list-ul"></i>
+                <h3>Banco de Questões</h3>
+                <p>Visualize e gerencie as questões cadastradas.</p>
+            </a>
+
+            <a th:href="@{/questionarios/gerar}" class="card">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <h3>Gerar Questionário</h3>
+                <p>Crie novas provas baseadas em temas.</p>
+            </a>
+
+            <a th:href="@{/questionarios/lista}" class="card">
+                <i class="fa-solid fa-file-signature"></i>
+                <h3>Resolver Questionários</h3>
+                <p>Acesse provas disponíveis e veja notas.</p>
+            </a>
+
+            <a th:href="@{/dashboard/desempenho}" class="card">
+                <i class="fa-solid fa-chart-line"></i>
+                <h3>Meu Desempenho</h3>
+                <p>Acompanhe sua evolução e estatísticas.</p>
+            </a>
+
+        </div>
+    </div>
 
 </body>
 </html>
