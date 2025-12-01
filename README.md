@@ -16,16 +16,15 @@ O SGBD utilizado deve ser o **PostgreSQL**.
 
 # Escopo e Detalhamento
 #### IDEIA
-A ideia principal do projeto é criar um banco de questões com o tema de segurança de dados.  
-A aplicação deve operar realizando uma seleção de níveis e tipos de questões, aglomerando-as para criar um conjunto de questões relacionadas, em que, a partir de um método de avaliação em tempo real, o usuário receba feedbacks sobre seus conhecimentos acerca do tema.  
+A ideia principal do projeto é criar um banco de questões com o tema boas práticas de segurança no meio digital.  
+A aplicação deve operar realizando uma seleção de tipos de questões (temas), aglomerando-as para criar um conjunto de questões relacionadas, em que, a partir de um método de avaliação em tempo real, o usuário receba feedbacks sobre seus conhecimentos acerca do tema.  
 
 #### RELATÓRIOS DE DESEMPENHO
-O objetivo é avaliar o conhecimento do usuário sobre o tema por meio de perguntas diversas. Ao completar um questionário, será mostrado um *score* de desempenho naquela série de perguntas. Também haverá uma tela com um gráfico mostrando o desempenho geral do usuário no tempo. Além disso, serão exibidos dados sobre o tipo de questão com mais erros e acertos do usuário e, baseado nisso, dicas de estudo em determinado tópico.  
+O objetivo é avaliar o conhecimento do usuário sobre o tema por meio de perguntas diversas. Ao completar um questionário, será mostrado um *score* de desempenho naquela série de perguntas. Também haverá uma tela com um gráfico mostrando o desempenho geral do usuário no tempo. Além disso, serão exibidos dados sobre o tipo de questão com mais erros e acertos do usuário.  
 Em resumo, o sistema de relatórios terá:
 - Relatório de desempenho com **score por questionário**;
 - Tela com **gráfico** mostrando o **desempenho pelo tempo**;
 - Dados contendo tópicos de **maiores acertos** e **maiores erros**;
-- **Dicas de estudo** para tópicos com **maiores erros**.
 
 #### DER
-![alt text](image.png)
+![alt text](image-1.png)
